@@ -1,6 +1,6 @@
 <script lang="ts">
   import { Router, Route, Link } from 'svelte-routing'
-  import CustomerOverview from './components/CustomerOverview.svelte';
+  import CustomerOverview from './components/CustomerOverview.svelte'
   import CustomerRegistration from './components/CustomerRegistration.svelte'
   import SongRegistration from './components/SongRegistration.svelte'
   import Blacklist from './components/Blacklist.svelte'
