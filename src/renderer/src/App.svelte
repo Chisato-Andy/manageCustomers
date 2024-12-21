@@ -25,8 +25,16 @@
     </Link>
   </div>
 
-  <Route path="/" component={CustomerOverview} />
-  <Route path="/customer-registration" component={CustomerRegistration} />
-  <Route path="/song-registration" component={SongRegistration} />
-  <Route path="/blacklist" component={Blacklist} />
+  <div class="route-container">
+    <Route path="/" component={CustomerOverview} />
+    <Route path="/customer-registration" component={CustomerRegistration} />
+    <Route path="/song-registration" component={SongRegistration} />
+    <Route path="/blacklist" component={Blacklist} />
+  </div>
 </Router>
+
+<style>
+  .route-container {
+    margin-top: 20px; /* コンテンツの上にスペースを追加 */
+  }
+</style>
