@@ -22,6 +22,8 @@
 
   let successMessage = 'registering'
 
+  const now = new Date()
+
   // validation
   function checkName(): void {
     if (!customerModel.name) {
@@ -42,9 +44,38 @@
   }
 
   function checkBirthday(): void {
-    // 誕生日処理追加
     if (customerModel.birthday) {
-      errorlist.birthday = customerModel.birthday
+      const inputBirthDay = new Date(customerModel.birthday)
+      if (inputBirthDay > now) {
+        errorlist.birthday = '・未来の日付は無効です'
+      } else if (inputBirthDay < now && customerModel.age) {
+        const inputAge = parseInt(customerModel.age, 10)
+        // 入力値が数字に変換できなかった場合
+        if (isNaN(inputAge)) {
+          errorlist.age = 'A'
+          return
+        }
+
+        // Calculate age from birthday
+        // 年齢を誕生日から計算
+        const yearDiff = now.getFullYear() - inputBirthDay.getFullYear()
+        const hasHadBirthdayThisYear =
+          // 月比較
+          now.getMonth() > inputBirthDay.getMonth() ||
+          // 月が一致した場合、に日にちを比較
+          (now.getMonth() === inputBirthDay.getMonth() && now.getDate() >= inputBirthDay.getDate())
+
+        const calculatedAge = hasHadBirthdayThisYear ? yearDiff : yearDiff - 1
+
+        // Check if the calculated age matches the input age
+        if (calculatedAge !== inputAge) {
+          errorlist.birthday = `・年齢と誕生日が一致しません (誕生日から計算した年齢：${calculatedAge}）`
+        } else {
+          errorlist.birthday = ''
+        }
+      } else {
+        errorlist.birthday = ''
+      }
     }
   }
 
@@ -73,31 +104,6 @@
       errorlist.contact = ''
     }
   }
-
-  // function checkInputs(): boolean {
-  //   let result = true
-  //   if (!customerModel.name) {
-  //     errorlist.name = '・名前は必須です'
-  //     result = false
-  //   }
-  //   // 連絡方法が空ならエラーメッセージを追加
-  //   if (!customerModel.contact) {
-  //     errorlist.contact = '・連絡方法は必須です'
-  //     result = false;
-  //   }
-  //   // 楽曲提供の状態が選択されていない場合
-  //   if (customerModel.isGiven === null) {
-  //     errorlist.isGiven = '・楽曲提供の状態を選択してください';
-  //     result = false;
-  //   }
-  //   // ブラックリスト対象が選択されていない場合
-  //   if (customerModel.isBlack === null) {
-  //     errorlist.isBlack = '・ブラックリスト対象を選択してください';
-  //     result = false;
-  //   }
-
-  //   return result;
-  // }
 
   // 関数集
   function handleSubmit(): void {
