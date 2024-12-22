@@ -1,6 +1,8 @@
 <script lang="ts">
+  import type { CustomerType } from '../../../backgraound/type'
+
   // 型 & 変数的な
-  let customerModel = {
+  let customerModel: CustomerType = {
     name: '',
     age: '',
     birthday: '',
@@ -26,6 +28,7 @@
 
   // validation
   function checkName(): void {
+    successMessage = 'registering'
     if (!customerModel.name) {
       errorlist.name = '・名前は必須です'
     } else if (customerModel.name.length > 30) {
@@ -36,6 +39,7 @@
   }
 
   function checkAge(): void {
+    successMessage = 'registering'
     if (customerModel.age.length > 5) {
       errorlist.age = '・年齢は5字以内で入力してください'
     } else {
@@ -44,6 +48,7 @@
   }
 
   function checkBirthday(): void {
+    successMessage = 'registering'
     if (customerModel.birthday) {
       const inputBirthDay = new Date(customerModel.birthday)
       if (inputBirthDay > now) {
@@ -80,6 +85,7 @@
   }
 
   function checkPlace(): void {
+    successMessage = 'registering'
     if (customerModel.place.length > 50) {
       errorlist.place = '・活動場所は50字以内で入力してください'
     } else {
@@ -88,6 +94,7 @@
   }
 
   function checkHobby(): void {
+    successMessage = 'registering'
     if (customerModel.hobby.length > 100) {
       errorlist.hobby = '・趣味は100字以内で入力してください'
     } else {
@@ -96,6 +103,7 @@
   }
 
   function checkContact(): void {
+    successMessage = 'registering'
     if (!customerModel.contact) {
       errorlist.contact = '・連絡方法は必須です'
     } else if (customerModel.contact.length > 50) {
@@ -107,6 +115,8 @@
 
   // 関数集
   function handleSubmit(): void {
+    successMessage = 'registering'
+
     // 入力チェック
     checkName()
     checkAge()
@@ -123,12 +133,17 @@
       errorlist.hobby === '' &&
       errorlist.contact === ''
     ) {
-      successMessage = '登録が完了しました！'
       // 登録する処理追加
+      const result = window.api.registerCustomer(customerModel)
 
-      // 入力欄きれいに
-      cleanErrorlist()
-      cleanCustomerInput()
+      if (result) {
+        // 入力欄きれいに
+        cleanErrorlist()
+        cleanCustomerInput()
+        successMessage = '登録が完了しました！'
+      } else {
+        successMessage = '登録に失敗しました、'
+      }
     } else {
       successMessage = 'registering'
     }

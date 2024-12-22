@@ -1,8 +1,11 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { CustomerType } from '../backgraound/type'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  registerCustomer: (customer: CustomerType) => ipcRenderer.invoke('register-customer', customer)
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

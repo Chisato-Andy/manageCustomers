@@ -25,6 +25,7 @@
     "@electron-toolkit/utils": "^3.0.0",
     "electron-updater": "^6.1.7",
     "mysql2": "^3.11.5",
+    "mysql2-promise": "^0.1.4",
     "svelte-routing": "^2.13.0"
   },
   "devDependencies": {
