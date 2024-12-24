@@ -1,10 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
-import { CustomerType } from '../backgraound/type'
+import { CustomerType } from '../lib/type'
 
 // Custom APIs for renderer
 const api = {
-  registerCustomer: (customer: CustomerType) => ipcRenderer.invoke('register-customer', customer)
+  registerCustomer: (customer: CustomerType) => ipcRenderer.invoke('register-customer', customer),
+  selectCustomerWithBlacklist: (judge: boolean) => ipcRenderer.invoke('select-customer', judge),
+  updateCustomerWithBlacklist: (id: number) =>
+    ipcRenderer.invoke('update-customer-with-blacklist', id)
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

@@ -35,6 +35,6 @@
 
 <style>
   .route-container {
-    margin-top: 20px; /* コンテンツの上にスペースを追加 */
+    margin-top: 100px; /* コンテンツの上にスペースを追加 */
   }
 </style>

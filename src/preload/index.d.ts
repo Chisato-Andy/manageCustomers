@@ -1,11 +1,13 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import { CustomerType } from '../backgraound/type'
+import { CustomerType } from '../lib/type'
 
 declare global {
   interface Window {
     electron: ElectronAPI
     api: {
       registerCustomer: (customer: CustomerType) => Promise<boolean>
+      selectCustomerWithBlacklist: (judge: boolean) => Promise<CustomerType[]>
+      updateCustomerWithBlacklist: (id: number) => Promise<void>
     }
   }
 }

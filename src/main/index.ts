@@ -2,7 +2,11 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
-import * as db from '../backgraound/mysql'
+import {
+  registerCustomer,
+  selectCustomerWithBlacklist,
+  updateCustomerWithBlacklist
+} from '../lib/server/db'
 
 function createWindow(): void {
   // Create the browser window.
@@ -71,6 +75,16 @@ app.on('window-all-closed', () => {
 // code. You can also put them in separate files and require them here.
 // 顧客登録
 ipcMain.handle('register-customer', (_event, customer) => {
-  console.log('A')
-  db.registerCustomer(customer)
+  registerCustomer(customer)
+})
+
+// 顧客情報取得
+ipcMain.handle('select-customer', async (_event, judge) => {
+  const customers = await selectCustomerWithBlacklist(judge)
+  return customers
+})
+
+// ブラックリスト情報更新
+ipcMain.handle('update-customer-with-blacklist', async (_event, id) => {
+  await updateCustomerWithBlacklist(id)
 })
