@@ -40,10 +40,54 @@
 
   function checkAge(): void {
     successMessage = 'registering'
-    if (customerModel.age.length > 5) {
-      errorlist.age = '・年齢は5字以内で入力してください'
-    } else {
-      errorlist.age = ''
+    if (customerModel.age) {
+      if (customerModel.age.length > 5) {
+        errorlist.age = '・年齢は5字以内で入力してください'
+        return
+      }
+
+      if (!/^\d+$/.test(customerModel.age)) {
+        errorlist.age = ''
+        errorlist.birthday = ''
+        return
+      }
+
+      if (customerModel.birthday) {
+        const inputBirthDay = new Date(customerModel.birthday)
+        if (inputBirthDay > now) {
+          errorlist.birthday = '・未来の日付は無効です'
+        } else {
+          const inputAge = parseInt(customerModel.age, 10)
+          // 入力値が数字に変換できなかった場合
+          if (isNaN(inputAge)) {
+            errorlist.age = ''
+            errorlist.birthday = ''
+            return
+          }
+
+          // Calculate age from birthday
+          // 年齢を誕生日から計算
+          const yearDiff = now.getFullYear() - inputBirthDay.getFullYear()
+          const hasHadBirthdayThisYear =
+            // 月比較
+            now.getMonth() > inputBirthDay.getMonth() ||
+            // 月が一致した場合、に日にちを比較
+            (now.getMonth() === inputBirthDay.getMonth() &&
+              now.getDate() >= inputBirthDay.getDate())
+
+          const calculatedAge = hasHadBirthdayThisYear ? yearDiff : yearDiff - 1
+
+          // Check if the calculated age matches the input age
+          if (calculatedAge !== inputAge) {
+            errorlist.birthday = `・年齢と誕生日が一致しません (誕生日から計算した年齢：${calculatedAge}）`
+          } else {
+            errorlist.birthday = ''
+          }
+        }
+      } else {
+        errorlist.age = ''
+        return
+      }
     }
   }
 
@@ -54,10 +98,14 @@
       if (inputBirthDay > now) {
         errorlist.birthday = '・未来の日付は無効です'
       } else if (inputBirthDay < now && customerModel.age) {
+        if (!/^\d+$/.test(customerModel.age)) {
+          errorlist.age = ''
+          return
+        }
         const inputAge = parseInt(customerModel.age, 10)
         // 入力値が数字に変換できなかった場合
         if (isNaN(inputAge)) {
-          errorlist.age = 'A'
+          errorlist.age = ''
           return
         }
 

@@ -9,3 +9,10 @@ export interface CustomerType {
   isGiven: boolean
   isBlack: boolean
 }
+
+export interface SongType {
+  id?: number
+  name: string
+  customer_id: number
+  memo: string
+}

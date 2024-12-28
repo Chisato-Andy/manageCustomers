@@ -1,5 +1,5 @@
 import * as mysql from 'mysql2/promise'
-import type { CustomerType } from '../type'
+import type { CustomerType, SongType } from '../type'
 
 const dbConfig = {
   host: 'localhost',
@@ -8,7 +8,7 @@ const dbConfig = {
   database: 'managecustomer'
 }
 
-// 登録
+// 顧客登録
 export async function registerCustomer(customer: CustomerType): Promise<boolean> {
   const connection = await mysql.createConnection(dbConfig)
   const now: Date = new Date()
@@ -40,6 +40,43 @@ export async function registerCustomer(customer: CustomerType): Promise<boolean>
       customer.contact,
       customer.isGiven,
       customer.isBlack,
+      now,
+      now
+    ]
+
+    // 実行
+    const [result] = await connection.execute(sql, values)
+    console.log('登録成功:', result)
+    return true
+  } catch (error) {
+    console.error('データベースエラー:', error)
+    return false
+  } finally {
+    connection.end()
+  }
+}
+
+// 曲登録
+export async function registerSong(song: SongType): Promise<boolean> {
+  const connection = await mysql.createConnection(dbConfig)
+  const now: Date = new Date()
+
+  try {
+    // 最大ID取得
+    const [rows] = await connection.query('SELECT MAX(song_id) AS maxId FROM song')
+    const maxId = rows[0].maxId || 0
+    const newId: number = maxId + 1
+
+    // SQL
+    const sql = `
+      INSERT INTO song (song_id, song_name, customer_id, song_memo, song_register_date, song_updated_date)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `
+    const values = [
+      newId, // 計算した新しいID
+      song.name,
+      song.customer_id,
+      song.memo,
       now,
       now
     ]

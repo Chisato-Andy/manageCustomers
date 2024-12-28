@@ -5,7 +5,8 @@ import icon from '../../resources/icon.png?asset'
 import {
   registerCustomer,
   selectCustomerWithBlacklist,
-  updateCustomerWithBlacklist
+  updateCustomerWithBlacklist,
+  registerSong
 } from '../lib/server/db'
 
 function createWindow(): void {
@@ -87,4 +88,9 @@ ipcMain.handle('select-customer', async (_event, judge) => {
 // ブラックリスト情報更新
 ipcMain.handle('update-customer-with-blacklist', async (_event, id) => {
   await updateCustomerWithBlacklist(id)
+})
+
+// 曲登録
+ipcMain.handle('register-song', (_event, song) => {
+  registerSong(song)
 })
