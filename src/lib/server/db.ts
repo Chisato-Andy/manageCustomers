@@ -120,14 +120,52 @@ export async function selectCustomerWithBlacklist(judge: boolean): Promise<Custo
     // rowsをCustomerType[]に変換
     const list: CustomerType[] = (rows as CustomerType[]).map((row) => ({
       id: row.id,
-      name: row.name || '',
+      name: row.name,
       age: row.age || '',
       birthday: row.birthday ? new Date(row.birthday).toLocaleDateString('ja-JP') : '',
       place: row.place || '',
       hobby: row.hobby || '',
-      contact: row.contact || '',
+      contact: row.contact,
       isGiven: row.isGiven,
       isBlack: row.isBlack
+    }))
+
+    return list
+  } catch (error) {
+    console.error('データベースエラー:', error)
+    return []
+  } finally {
+    connection.end()
+  }
+}
+
+// 顧客に紐づく曲リスト取得
+export async function selectSongsByCustomerId(customerId: number): Promise<SongType[]> {
+  const connection = await mysql.createConnection(dbConfig)
+
+  try {
+    // SQL
+    const sql = `
+      SELECT
+        song_id As id,
+        song_name AS name,
+        song_memo AS memo,
+        customer_id AS customer_id,
+        song_register_date AS registerDate,
+        song_updated_date AS updatedDate
+      FROM song
+      WHERE customer_id = ${customerId};
+    `
+
+    // 実行
+    const [rows] = await connection.query(sql)
+
+    // rowsをCustomerType[]に変換
+    const list: SongType[] = (rows as SongType[]).map((row) => ({
+      id: row.id,
+      name: row.name,
+      memo: row.memo || '',
+      customer_id: row.customer_id
     }))
 
     return list

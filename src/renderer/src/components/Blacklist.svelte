@@ -11,7 +11,6 @@
   })
 
   function toggleIsBlack(id: number) {
-    console.log('id: ', id)
     window.api.updateCustomerWithBlacklist(id).then(() => {
       const fetchCustomerList = async () => {
         customerList = await window.api.selectCustomerWithBlacklist(true)

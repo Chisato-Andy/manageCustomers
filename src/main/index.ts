@@ -6,7 +6,8 @@ import {
   registerCustomer,
   selectCustomerWithBlacklist,
   updateCustomerWithBlacklist,
-  registerSong
+  registerSong,
+  selectSongsByCustomerId
 } from '../lib/server/db'
 
 function createWindow(): void {
@@ -79,6 +80,11 @@ ipcMain.handle('register-customer', (_event, customer) => {
   registerCustomer(customer)
 })
 
+// 曲登録
+ipcMain.handle('register-song', (_event, song) => {
+  registerSong(song)
+})
+
 // 顧客情報取得
 ipcMain.handle('select-customer', async (_event, judge) => {
   const customers = await selectCustomerWithBlacklist(judge)
@@ -90,7 +96,7 @@ ipcMain.handle('update-customer-with-blacklist', async (_event, id) => {
   await updateCustomerWithBlacklist(id)
 })
 
-// 曲登録
-ipcMain.handle('register-song', (_event, song) => {
-  registerSong(song)
+// 顧客の客リスト取得
+ipcMain.handle('select-songs-by-customer-id', async (_event, id) => {
+  await selectSongsByCustomerId(id)
 })

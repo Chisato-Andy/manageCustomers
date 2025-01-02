@@ -8,6 +8,7 @@ export interface CustomerType {
   contact: string
   isGiven: boolean
   isBlack: boolean
+  songlist?: SongType[]
 }
 
 export interface SongType {

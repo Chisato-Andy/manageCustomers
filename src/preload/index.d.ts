@@ -9,6 +9,7 @@ declare global {
       selectCustomerWithBlacklist: (judge: boolean) => Promise<CustomerType[]>
       updateCustomerWithBlacklist: (id: number) => Promise<void>
       registerSong: (song: SongType) => Promise<boolean>
+      selectSongsByCustomerId: (customerId: number) => Promise<SongType[]>
     }
   }
 }
