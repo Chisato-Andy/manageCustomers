@@ -93,7 +93,7 @@ export async function registerSong(song: SongType): Promise<boolean> {
   }
 }
 
-// blacklist取得
+// 顧客リスト + 曲リスト取得
 export async function selectCustomerWithBlacklist(judge: boolean): Promise<CustomerType[]> {
   const connection = await mysql.createConnection(dbConfig)
 
@@ -117,20 +117,41 @@ export async function selectCustomerWithBlacklist(judge: boolean): Promise<Custo
     // 実行
     const [rows] = await connection.query(sql)
 
-    // rowsをCustomerType[]に変換
-    const list: CustomerType[] = (rows as CustomerType[]).map((row) => ({
-      id: row.id,
-      name: row.name,
-      age: row.age || '',
-      birthday: row.birthday ? new Date(row.birthday).toLocaleDateString('ja-JP') : '',
-      place: row.place || '',
-      hobby: row.hobby || '',
-      contact: row.contact,
-      isGiven: row.isGiven,
-      isBlack: row.isBlack
-    }))
+    // 顧客情報ごとに曲リストを取得＆統合
+    const customers: CustomerType[] = await Promise.all(
+      (rows as CustomerType[]).map(async (row) => {
+        const songs = row.id ? await selectSongsByCustomerId(row.id) : []
+        return {
+          id: row.id,
+          name: row.name,
+          age: row.age || '',
+          birthday: row.birthday ? new Date(row.birthday).toLocaleDateString('ja-JP') : '',
+          place: row.place || '',
+          hobby: row.hobby || '',
+          contact: row.contact,
+          isGiven: row.isGiven,
+          isBlack: row.isBlack,
+          songlist: songs
+        }
+      })
+    )
 
-    return list
+    return customers
+
+    // // rowsをCustomerType[]に変換
+    // const list: CustomerType[] = (rows as CustomerType[]).map((row) => ({
+    //   id: row.id,
+    //   name: row.name,
+    //   age: row.age || '',
+    //   birthday: row.birthday ? new Date(row.birthday).toLocaleDateString('ja-JP') : '',
+    //   place: row.place || '',
+    //   hobby: row.hobby || '',
+    //   contact: row.contact,
+    //   isGiven: row.isGiven,
+    //   isBlack: row.isBlack
+    // }))
+
+    // return list
   } catch (error) {
     console.error('データベースエラー:', error)
     return []

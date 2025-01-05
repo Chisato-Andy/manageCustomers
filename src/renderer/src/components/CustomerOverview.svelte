@@ -2,31 +2,54 @@
   import type { CustomerType } from '../../../lib/type'
   import { onMount } from 'svelte'
 
-  let customerList: Customer[] = []
-  let selectedCustomerId: number | null = null
-  let songList: SongType[] = []
+  let originalCustomerList: CustomerType[] = []
+  let customerList: CustomerType[] = []
+  let expandedCustomers = new Set<number>()
+  let searchQuery: string = ''
 
   // 顧客リストの取得
   onMount(async () => {
     const fetchCustomerList = async () => {
       customerList = await window.api.selectCustomerWithBlacklist(false)
+      originalCustomerList = [...customerList]
     }
+
     fetchCustomerList()
   })
 
-  // 曲リストの取得と表示切り替え
-  const toggleSongList = async (customerId: number) => {
-    if (selectedCustomerId === customerId) {
-      // 同じ顧客をクリックした場合、リストを閉じる
-      selectedCustomerId = null
-      songList = []
+  // 顧客の展開状態をトグルする関数
+  function toggleCustomer(customerId: number): void {
+    if (expandedCustomers.has(customerId)) {
+      expandedCustomers.delete(customerId)
     } else {
-      // 選択された顧客の曲リストを取得
-      selectedCustomerId = customerId
-      songList = await window.api.selectSongsByCustomerId(customerId)
+      expandedCustomers.add(customerId)
+    }
+    expandedCustomers = new Set(expandedCustomers)
+  }
+
+  // 検索条件に基づいて顧客をフィルタリングする関数
+  function filterCustomers() {
+    if (!searchQuery) {
+      customerList = [...originalCustomerList]
+    } else {
+      // あいまい検索
+      customerList = originalCustomerList.filter((customer) => {
+        const normalizedQuery = searchQuery.trim().toLowerCase()
+        const normalizedCustomerName = customer.name.trim().toLowerCase()
+        const isCustomerMatch = normalizedCustomerName.includes(normalizedQuery)
+        const isSongMatch = customer.songlist.some((song) =>
+          song.name.trim().toLowerCase().includes(normalizedQuery)
+        )
+        return isCustomerMatch || isSongMatch
+      })
     }
   }
 </script>
+
+<div class="search-box">
+  <input type="text" placeholder="検索..." bind:value={searchQuery} />
+  <button on:click={() => filterCustomers()}>検索</button>
+</div>
 
 <div class="box">
   {#if customerList.length > 0}
@@ -43,7 +66,7 @@
       </thead>
       <tbody>
         {#each customerList as customer}
-          <tr class="clickable" on:click={() => toggleSongList(customer.id)}>
+          <tr class="clickable" on:click={() => toggleCustomer(customer.id)}>
             <td>{customer.name}</td>
             <td>{customer.age}</td>
             <td>{customer.birthday}</td>
@@ -51,14 +74,32 @@
             <td>{customer.hobby}</td>
             <td>{customer.contact}</td>
           </tr>
-          {#if selectedCustomerId === customer.id && songList.length > 0}
+          <!-- 曲リストの表示/非表示 -->
+          {#if expandedCustomers.has(customer.id)}
             <tr>
               <td colspan="6">
-                <ul>
-                  {#each songList as song}
-                    <li>{song.name}</li>
-                  {/each}
-                </ul>
+                <div class="song-list">
+                  {#if customer.songlist.length === 0}
+                    曲が登録されていません
+                  {:else}
+                    <table>
+                      <thead>
+                        <tr>
+                          <th>曲名</th>
+                          <th>メモ</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {#each customer.songlist as song}
+                          <tr>
+                            <td>{song.name}</td>
+                            <td>{song.memo}</td>
+                          </tr>
+                        {/each}
+                      </tbody>
+                    </table>
+                  {/if}
+                </div>
               </td>
             </tr>
           {/if}
@@ -66,7 +107,7 @@
       </tbody>
     </table>
   {:else}
-    <p>No customers in the blacklist.</p>
+    <p>No customers found.</p>
   {/if}
 </div>
 
@@ -101,13 +142,43 @@
     background-color: #f0f0f0;
   }
 
-  ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
+  .song-list {
+    padding: 0.5em;
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    color: black;
   }
 
-  li {
-    margin: 0.5em 0;
+  .song-list table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .song-list th,
+  .song-list td {
+    border: 1px solid #ccc;
+    padding: 0.5em;
+  }
+
+  .search-box input {
+    font-size: 1.2em;
+    padding: 0.5em;
+    width: 60%;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .search-box button {
+    font-size: 1.2em;
+    padding: 0.5em 1.2em;
+    border: none;
+    background-color: #007bff;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .search-box button:hover {
+    background-color: #0056b3;
   }
 </style>

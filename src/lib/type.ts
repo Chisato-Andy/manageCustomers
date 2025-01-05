@@ -9,6 +9,7 @@ export interface CustomerType {
   isGiven: boolean
   isBlack: boolean
   songlist?: SongType[]
+  canSeeSonglist?: boolean
 }
 
 export interface SongType {
