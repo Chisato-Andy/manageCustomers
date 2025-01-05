@@ -2,6 +2,8 @@
   import type { CustomerType } from '../../../lib/type'
   import { onMount } from 'svelte'
 
+  const api = (window as any).api
+
   let originalCustomerList: CustomerType[] = []
   let customerList: CustomerType[] = []
   let expandedCustomers = new Set<number>()
@@ -10,7 +12,7 @@
   // 顧客リストの取得
   onMount(async () => {
     const fetchCustomerList = async () => {
-      customerList = await window.api.selectCustomerWithBlacklist(false)
+      customerList = await api.selectCustomerWithBlacklist(false)
       originalCustomerList = [...customerList]
     }
 

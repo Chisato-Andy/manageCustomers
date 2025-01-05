@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { CustomerType } from '../../../lib/type'
 
+  const api = (window as any).api
+
   // 型 & 変数的な
   let customerModel: CustomerType = {
     name: '',
@@ -182,7 +184,7 @@
       errorlist.contact === ''
     ) {
       // 登録する処理追加
-      const result = window.api.registerCustomer(customerModel)
+      const result = api.registerCustomer(customerModel)
 
       if (result) {
         // 入力欄きれいに

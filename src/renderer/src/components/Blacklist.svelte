@@ -2,18 +2,20 @@
   import type { CustomerType } from '../../../lib/type'
   import { onMount, afterUpdate } from 'svelte'
 
+  const api = (window as any).api
+
   let customerList: CustomerType[] = []
   onMount(async () => {
     const fetchCustomerList = async () => {
-      customerList = await window.api.selectCustomerWithBlacklist(true)
+      customerList = await api.selectCustomerWithBlacklist(true)
     }
     fetchCustomerList()
   })
 
   function toggleIsBlack(id: number) {
-    window.api.updateCustomerWithBlacklist(id).then(() => {
+    api.updateCustomerWithBlacklist(id).then(() => {
       const fetchCustomerList = async () => {
-        customerList = await window.api.selectCustomerWithBlacklist(true)
+        customerList = await api.selectCustomerWithBlacklist(true)
       }
       fetchCustomerList()
     })

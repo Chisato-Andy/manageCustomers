@@ -2,6 +2,8 @@
   import type { CustomerType, SongType } from '../../../lib/type'
   import { onMount } from 'svelte'
 
+  const api = (window as any).api
+
   // 型 & 変数的な
   let songModel: SongType = {
     name: '',
@@ -18,7 +20,7 @@
   let customerList: CustomerType[] = []
   onMount(async () => {
     const fetchCustomerList = async () => {
-      customerList = await window.api.selectCustomerWithBlacklist(false)
+      customerList = await api.selectCustomerWithBlacklist(false)
     }
     fetchCustomerList()
   })
@@ -66,7 +68,7 @@
 
     if (errorlist.name === '' && errorlist.customer_id === '' && errorlist.memo === '') {
       // 登録する処理追加
-      const result = window.api.registerSong(songModel)
+      const result = api.registerSong(songModel)
 
       if (result) {
         // 入力欄きれいに

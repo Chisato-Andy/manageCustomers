@@ -4,6 +4,7 @@
     "src/renderer/src/env.d.ts",
     "src/renderer/src/**/*",
     "src/renderer/src/**/*.svelte",
+    "./src/preload/index.d.ts"
   ],
   "compilerOptions": {
     "verbatimModuleSyntax": true,
@@ -11,7 +12,8 @@
     "strict": false,
     "allowJs": true,
     "checkJs": true,
-    "lib": ["ESNext", "DOM", "DOM.Iterable"]
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "typeRoots": ["./src/preload/index.d.ts", "./node_modules/@types"],
   },
   "references": [{ "path": "./tsconfig.node.json" }]
 }
