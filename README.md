@@ -1,34 +1,41 @@
 # managecustomers
 
-An Electron application with Svelte and TypeScript
+## 準備
+1. MySQL(8.1.0)をインストール
 
-## Recommended IDE Setup
+2. MySQLにログイン
 
-- [VSCode](https://code.visualstudio.com/) + [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint) + [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) + [Svelte](https://marketplace.visualstudio.com/items?itemName=svelte.svelte-vscode)
+3. 下のコードを上から順番に一つずつコピー＆Enterキーを押す  
+[Mysql用コード](./MySQL.sql)
 
-## Project Setup
+4. managecustomers-1.0.0-setup.exe を好きなところにダウンロード
 
-### Install
+5. managecustomers-1.0.0-setup.exeをダブルクリック
+→　アプリがすぐに立ち上がります
 
-```bash
-$ npm install
-```
+6. アプリがきちんと立ち上がったら、managecustomers-1.0.0-setup.exeは削除してOKです
 
-### Development
+## 使い方
 
-```bash
-$ npm run dev
-```
+### 初期画面
+* 一覧にはブラックリスト対象ではない顧客情報が表示されます。
+* 顧客情報の行を押すと、行の下に顧客に提供した曲のリストが表示されます。  
+  もう一度行を押すと、曲のリストが表示されなくなります。
+* 検索欄には曲名や顧客名で検索ができます。
+* 顧客欄を空にして、検索ボタンを押すと、顧客リスト全部が表示されます。
 
-### Build
+## 顧客登録
+* 名前、連絡方法、楽曲提供、ブラックリスト対象の項目は必須項目です。  
+  入力しないと登録できません。
+* 年齢は数字だけや文字(例：20代など) 入力できます。  
+  ただし、数字で年齢を入力＆誕生日を入力した場合、誕生日から計算した年齢と入力した年齢が異なった場合は、エラーが出て登録できません。
 
-```bash
-# For windows
-$ npm run build:win
 
-# For macOS
-$ npm run build:mac
+## 曲登録
+* 曲名、顧客名の項目は必須項目です。  
+  入力しないと登録できません。
+* 顧客名は選択できるようになっています。曲登録の前に顧客登録を先に行ってください。
 
-# For Linux
-$ npm run build:linux
-```
+## ブラックリスト
+* 顧客登録でブラックリスト対象を「対象にする」とした人を表示します。
+* ブラックリスト対象から外したい場合は、顧客情報右端の [ブラックリストから削除]ボタン を押してください。
