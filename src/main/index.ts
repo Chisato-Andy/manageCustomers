@@ -1,7 +1,14 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import {
+  registerCustomer,
+  selectCustomerWithBlacklist,
+  updateCustomerWithBlacklist,
+  registerSong,
+  selectSongsByCustomerId
+} from '../lib/server/db'
 
 function createWindow(): void {
   // Create the browser window.
@@ -68,3 +75,28 @@ app.on('window-all-closed', () => {
 
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
+// 顧客登録
+ipcMain.handle('register-customer', (_event, customer) => {
+  registerCustomer(customer)
+})
+
+// 曲登録
+ipcMain.handle('register-song', (_event, song) => {
+  registerSong(song)
+})
+
+// 顧客情報取得
+ipcMain.handle('select-customer', async (_event, judge) => {
+  const customers = await selectCustomerWithBlacklist(judge)
+  return customers
+})
+
+// ブラックリスト情報更新
+ipcMain.handle('update-customer-with-blacklist', async (_event, id) => {
+  await updateCustomerWithBlacklist(id)
+})
+
+// 顧客の客リスト取得
+ipcMain.handle('select-songs-by-customer-id', async (_event, id) => {
+  await selectSongsByCustomerId(id)
+})

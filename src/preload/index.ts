@@ -1,8 +1,17 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
+import { CustomerType, SongType } from '../lib/type'
 
 // Custom APIs for renderer
-const api = {}
+const api = {
+  registerCustomer: (customer: CustomerType) => ipcRenderer.invoke('register-customer', customer),
+  selectCustomerWithBlacklist: (judge: boolean) => ipcRenderer.invoke('select-customer', judge),
+  updateCustomerWithBlacklist: (id: number) =>
+    ipcRenderer.invoke('update-customer-with-blacklist', id),
+  registerSong: (song: SongType) => ipcRenderer.invoke('register-song', song),
+  selectSongsByCustomerId: (customerId: number) =>
+    ipcRenderer.invoke('select-songs-by-customer-id', customerId)
+}
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

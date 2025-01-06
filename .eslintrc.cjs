@@ -18,6 +18,8 @@ module.exports = {
     }
   ],
   rules: {
-    'svelte/no-unused-svelte-ignore': 'off'
+    'svelte/no-unused-svelte-ignore': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/no-explicit-any': 'off'
   }
 }
