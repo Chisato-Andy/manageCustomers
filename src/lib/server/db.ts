@@ -137,21 +137,6 @@ export async function selectCustomerWithBlacklist(judge: boolean): Promise<Custo
     )
 
     return customers
-
-    // // rowsをCustomerType[]に変換
-    // const list: CustomerType[] = (rows as CustomerType[]).map((row) => ({
-    //   id: row.id,
-    //   name: row.name,
-    //   age: row.age || '',
-    //   birthday: row.birthday ? new Date(row.birthday).toLocaleDateString('ja-JP') : '',
-    //   place: row.place || '',
-    //   hobby: row.hobby || '',
-    //   contact: row.contact,
-    //   isGiven: row.isGiven,
-    //   isBlack: row.isBlack
-    // }))
-
-    // return list
   } catch (error) {
     console.error('データベースエラー:', error)
     return []

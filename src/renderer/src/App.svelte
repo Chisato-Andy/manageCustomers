@@ -1,37 +1,41 @@
 <script lang="ts">
-  import { Router, Route, Link } from 'svelte-routing'
+  import { push, location } from 'svelte-spa-router'
   import CustomerOverview from './components/CustomerOverview.svelte'
   import CustomerRegistration from './components/CustomerRegistration.svelte'
   import SongRegistration from './components/SongRegistration.svelte'
   import Blacklist from './components/Blacklist.svelte'
+
+  // ルート遷移の関数
+  function navigateTo(path: string) {
+    push(path)
+  }
 </script>
 
-<Router>
-  <div class="button-container">
-    <Link to="/">
-      <button>初期画面</button>
-    </Link>
+<div class="button-container">
+  <button on:click={() => navigateTo('/')}>初期画面</button>
+  <button on:click={() => navigateTo('/customer-registration')}>顧客登録</button>
+  <button on:click={() => navigateTo('/song-registration')}>曲登録</button>
+  <button on:click={() => navigateTo('/blacklist')}>ブラックリスト</button>
+</div>
 
-    <Link to="/customer-registration">
-      <button>顧客登録</button>
-    </Link>
+<div class="route-container">
+  <!-- ルーティングされるコンポーネント -->
+  {#if $location === '/'}
+    <CustomerOverview />
+  {/if}
 
-    <Link to="/song-registration">
-      <button>曲登録</button>
-    </Link>
+  {#if $location === '/customer-registration'}
+    <CustomerRegistration />
+  {/if}
 
-    <Link to="/blacklist">
-      <button>ブラックリスト</button>
-    </Link>
-  </div>
+  {#if $location === '/song-registration'}
+    <SongRegistration />
+  {/if}
 
-  <div class="route-container">
-    <Route path="/" component={CustomerOverview} />
-    <Route path="/customer-registration" component={CustomerRegistration} />
-    <Route path="/song-registration" component={SongRegistration} />
-    <Route path="/blacklist" component={Blacklist} />
-  </div>
-</Router>
+  {#if $location === '/blacklist'}
+    <Blacklist />
+  {/if}
+</div>
 
 <style>
   .route-container {

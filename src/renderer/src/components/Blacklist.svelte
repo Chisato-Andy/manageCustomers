@@ -10,6 +10,7 @@
       customerList = await api.selectCustomerWithBlacklist(true)
     }
     fetchCustomerList()
+    console.log('blacklist')
   })
 
   function toggleIsBlack(id: number) {
