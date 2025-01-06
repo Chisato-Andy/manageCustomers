@@ -1,10 +1,10 @@
-①
+1: 
 CREATE DATABASE managecustomer;
 
-②
+2: 
 use managecustomer;
 
-③
+3: 
 CREATE TABLE customer (
   customer_id int primary key,
   customer_age varchar(5),
@@ -19,7 +19,7 @@ CREATE TABLE customer (
   customer_updated_date date NOT NULL
 );
 
-④
+4: 
 CREATE TABLE song (
   song_id int primary key,
   song_memo varchar(300),
