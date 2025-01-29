@@ -11,6 +11,7 @@
     place: '',
     hobby: '',
     contact: '',
+    memo: '',
     isGiven: true,
     isBlack: false
   }
@@ -21,7 +22,8 @@
     birthday: '',
     place: '',
     hobby: '',
-    contact: ''
+    contact: '',
+    memo: ''
   }
 
   let successMessage = 'registering'
@@ -163,6 +165,15 @@
     }
   }
 
+  function checkMemo(): void {
+    successMessage = 'registering'
+    if (customerModel.memo.length > 500) {
+      errorlist.memo = '・メモは500字以内で入力してください'
+    } else {
+      errorlist.memo = ''
+    }
+  }
+
   // 関数集
   function handleSubmit(): void {
     successMessage = 'registering'
@@ -174,6 +185,7 @@
     checkPlace()
     checkHobby()
     checkContact()
+    checkMemo()
 
     if (
       errorlist.name === '' &&
@@ -181,7 +193,8 @@
       errorlist.birthday === '' &&
       errorlist.place === '' &&
       errorlist.hobby === '' &&
-      errorlist.contact === ''
+      errorlist.contact === '' &&
+      errorlist.memo === ''
     ) {
       // 登録する処理追加
       const result = api.registerCustomer(customerModel)
@@ -206,6 +219,7 @@
     customerModel.place = ''
     customerModel.hobby = ''
     customerModel.contact = ''
+    customerModel.memo = ''
     customerModel.isGiven = true
     customerModel.isBlack = false
   }
@@ -217,6 +231,7 @@
     errorlist.place = ''
     errorlist.hobby = ''
     errorlist.contact = ''
+    errorlist.memo = ''
   }
 </script>
 
@@ -244,6 +259,10 @@
   {/if}
   {#if errorlist.contact}
     <dev class="error">{errorlist.contact}</dev>
+    <br />
+  {/if}
+  {#if errorlist.memo}
+    <dev class="error">{errorlist.memo}</dev>
     <br />
   {/if}
   <br />
@@ -319,6 +338,13 @@
             style="width:300px; height:30px;"
             on:input={() => checkContact()}
           />
+        </td>
+      </tr>
+      <tr>
+        <td>メモ</td>
+        <td>
+          <textarea bind:value={customerModel.memo} rows="5" cols="40" on:input={() => checkMemo()}
+          ></textarea>
         </td>
       </tr>
       <tr>

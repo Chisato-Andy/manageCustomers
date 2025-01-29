@@ -27,8 +27,8 @@ export async function registerCustomer(customer: CustomerType): Promise<boolean>
 
     // SQL
     const sql = `
-      INSERT INTO customer (customer_id, customer_name, customer_age, customer_birthday, customer_place, customer_hobby, customer_contact, customer_isgiven, customer_isblack, customer_register_date, customer_updated_date)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO customer (customer_id, customer_name, customer_age, customer_birthday, customer_place, customer_hobby, customer_contact, customer_memo, customer_isgiven, customer_isblack, customer_register_date, customer_updated_date)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `
     const values = [
       newId, // 計算した新しいID
@@ -38,6 +38,7 @@ export async function registerCustomer(customer: CustomerType): Promise<boolean>
       customer.place,
       customer.hobby,
       customer.contact,
+      customer.memo,
       customer.isGiven,
       customer.isBlack,
       now,
@@ -108,6 +109,7 @@ export async function selectCustomerWithBlacklist(judge: boolean): Promise<Custo
         customer_place AS place,
         customer_hobby AS hobby,
         customer_contact AS contact,
+        customer_memo AS memo,
         customer_isgiven AS isGiven,
         customer_isblack AS isBlack
       FROM customer
@@ -129,6 +131,7 @@ export async function selectCustomerWithBlacklist(judge: boolean): Promise<Custo
           place: row.place || '',
           hobby: row.hobby || '',
           contact: row.contact,
+          memo: row.memo || '',
           isGiven: row.isGiven,
           isBlack: row.isBlack,
           songlist: songs

@@ -64,6 +64,7 @@
           <th>活動場所</th>
           <th>趣味</th>
           <th>連絡方法</th>
+          <th>メモ</th>
         </tr>
       </thead>
       <tbody>
@@ -75,6 +76,7 @@
             <td>{customer.place}</td>
             <td>{customer.hobby}</td>
             <td>{customer.contact}</td>
+            <td>{customer.memo}</td>
           </tr>
           <!-- 曲リストの表示/非表示 -->
           {#if expandedCustomers.has(customer.id)}

@@ -6,6 +6,7 @@ export interface CustomerType {
   place: string
   hobby: string
   contact: string
+  memo: string
   isGiven: boolean
   isBlack: boolean
   songlist?: SongType[]
