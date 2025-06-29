@@ -4,6 +4,7 @@
   import CustomerRegistration from './components/CustomerRegistration.svelte'
   import SongRegistration from './components/SongRegistration.svelte'
   import Blacklist from './components/Blacklist.svelte'
+  import Edit from './components/Edit.svelte'
 
   // ルート遷移の関数
   function navigateTo(path: string) {
@@ -12,9 +13,10 @@
 </script>
 
 <div class="button-container">
-  <button on:click={() => navigateTo('/')}>初期画面</button>
+  <button on:click={() => navigateTo('/')}>一覧</button>
   <button on:click={() => navigateTo('/customer-registration')}>顧客登録</button>
   <button on:click={() => navigateTo('/song-registration')}>曲登録</button>
+  <button on:click={() => navigateTo('/edit')}>編集</button>
   <button on:click={() => navigateTo('/blacklist')}>ブラックリスト</button>
 </div>
 
@@ -30,6 +32,10 @@
 
   {#if $location === '/song-registration'}
     <SongRegistration />
+  {/if}
+
+  {#if $location === '/edit'}
+    <Edit />
   {/if}
 
   {#if $location === '/blacklist'}
