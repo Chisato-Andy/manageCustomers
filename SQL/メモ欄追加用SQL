@@ -1,0 +1,5 @@
+①
+use manageCustomer;
+
+②
+ALTER TABLE customer ADD customer_memo varchar(500) NOT NULL;

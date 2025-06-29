@@ -47,6 +47,7 @@
           <th>活動場所</th>
           <th>趣味</th>
           <th>連絡方法</th>
+          <th>メモ</th>
           <th></th>
         </tr>
       </thead>
@@ -59,6 +60,7 @@
             <td>{customer.place}</td>
             <td>{customer.hobby}</td>
             <td>{customer.contact}</td>
+            <td>{customer.memo}</td>
             <td>
               <button on:click={() => toggleIsBlack(customer.id)}>ブラックリストから削除</button>
             </td>
