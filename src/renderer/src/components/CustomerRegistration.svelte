@@ -127,9 +127,7 @@
     if (hasError) return
 
     const result =
-      mode === 'update'
-        ? api.updateCustomerWithBlacklist(customerModel)
-        : api.registerCustomer(customerModel)
+      mode === 'update' ? api.updateCustomer(customerModel) : api.registerCustomer(customerModel)
 
     if (result) {
       successMessage = mode === 'update' ? '更新が完了しました！' : '登録が完了しました！'

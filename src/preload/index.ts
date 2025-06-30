@@ -5,6 +5,7 @@ import { CustomerType, SongType } from '../lib/type'
 // Custom APIs for renderer
 const api = {
   registerCustomer: (customer: CustomerType) => ipcRenderer.invoke('register-customer', customer),
+  updateCustomer: (customer: CustomerType) => ipcRenderer.invoke('update-customer', customer),
   selectCustomerWithBlacklist: (judge: boolean) => ipcRenderer.invoke('select-customer', judge),
   updateCustomerWithBlacklist: (id: number) =>
     ipcRenderer.invoke('update-customer-with-blacklist', id),

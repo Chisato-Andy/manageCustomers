@@ -57,6 +57,60 @@ export async function registerCustomer(customer: CustomerType): Promise<boolean>
   }
 }
 
+// 顧客情報更新
+export async function updateCustomer(customer: CustomerType): Promise<boolean> {
+  const connection = await mysql.createConnection(dbConfig)
+  const now: Date = new Date()
+
+  try {
+    // birthday を Date 型に変換（値があれば）
+    let birthday: Date | null = null
+    if (customer.birthday) {
+      birthday = new Date(customer.birthday)
+    }
+
+    // 更新用SQL文
+    const sql = `
+      UPDATE customer
+      SET
+        customer_name = ?,
+        customer_age = ?,
+        customer_birthday = ?,
+        customer_place = ?,
+        customer_hobby = ?,
+        customer_contact = ?,
+        customer_memo = ?,
+        customer_isgiven = ?,
+        customer_isblack = ?,
+        customer_updated_date = ?
+      WHERE customer_id = ?
+    `
+    const values = [
+      customer.name,
+      customer.age,
+      birthday,
+      customer.place,
+      customer.hobby,
+      customer.contact,
+      customer.memo,
+      customer.isGiven,
+      customer.isBlack,
+      now,
+      customer.id
+    ]
+
+    // SQL実行
+    const [result] = await connection.execute(sql, values)
+    console.log('更新成功:', result)
+    return true
+  } catch (error) {
+    console.error('データベースエラー:', error)
+    return false
+  } finally {
+    connection.end()
+  }
+}
+
 // 曲登録
 export async function registerSong(song: SongType): Promise<boolean> {
   const connection = await mysql.createConnection(dbConfig)

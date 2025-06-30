@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import {
   registerCustomer,
+  updateCustomer,
   selectCustomerWithBlacklist,
   updateCustomerWithBlacklist,
   registerSong,
@@ -78,6 +79,11 @@ app.on('window-all-closed', () => {
 // 顧客登録
 ipcMain.handle('register-customer', (_event, customer) => {
   registerCustomer(customer)
+})
+
+// 顧客情報更新
+ipcMain.handle('update-customer', (_event, customer) => {
+  updateCustomer(customer)
 })
 
 // 曲登録
