@@ -47,10 +47,64 @@ export async function registerCustomer(customer: CustomerType): Promise<boolean>
 
     // 実行
     const [result] = await connection.execute(sql, values)
-    console.log('登録成功:', result)
+    console.log('success to register:', result)
     return true
   } catch (error) {
-    console.error('データベースエラー:', error)
+    console.error('fail to register:', error)
+    return false
+  } finally {
+    await connection.end()
+  }
+}
+
+// 顧客情報更新
+export async function updateCustomer(customer: CustomerType): Promise<boolean> {
+  const connection = await mysql.createConnection(dbConfig)
+  const now: Date = new Date()
+
+  try {
+    // birthday を Date 型に変換（値があれば）
+    let birthday: Date | null = null
+    if (customer.birthday) {
+      birthday = new Date(customer.birthday)
+    }
+
+    // 更新用SQL文
+    const sql = `
+      UPDATE customer
+      SET
+        customer_name = ?,
+        customer_age = ?,
+        customer_birthday = ?,
+        customer_place = ?,
+        customer_hobby = ?,
+        customer_contact = ?,
+        customer_memo = ?,
+        customer_isgiven = ?,
+        customer_isblack = ?,
+        customer_updated_date = ?
+      WHERE customer_id = ?
+    `
+    const values = [
+      customer.name,
+      customer.age,
+      birthday,
+      customer.place,
+      customer.hobby,
+      customer.contact,
+      customer.memo,
+      customer.isGiven,
+      customer.isBlack,
+      now,
+      customer.id
+    ]
+
+    // SQL実行
+    const [result] = await connection.execute(sql, values)
+    console.log('success to update:', result)
+    return true
+  } catch (error) {
+    console.error('fail to update:', error)
     return false
   } finally {
     connection.end()
@@ -84,13 +138,41 @@ export async function registerSong(song: SongType): Promise<boolean> {
 
     // 実行
     const [result] = await connection.execute(sql, values)
-    console.log('登録成功:', result)
+    console.log('success to register:', result)
     return true
   } catch (error) {
-    console.error('データベースエラー:', error)
+    console.error('fail to register:', error)
     return false
   } finally {
     connection.end()
+  }
+}
+
+// 曲情報更新
+export async function updateSong(song: SongType): Promise<boolean> {
+  const connection = await mysql.createConnection(dbConfig)
+  const now: Date = new Date()
+
+  try {
+    const sql = `
+      UPDATE song
+      SET
+        song_name = ?,
+        customer_id = ?,
+        song_memo = ?,
+        song_updated_date = ?
+      WHERE song_id = ?
+    `
+    const values = [song.name, song.customer_id, song.memo, now, song.id]
+
+    const [result] = await connection.execute(sql, values)
+    console.log('success to update:', result)
+    return true
+  } catch (error) {
+    console.error('fail to update:', error)
+    return false
+  } finally {
+    await connection.end()
   }
 }
 
@@ -141,7 +223,7 @@ export async function selectCustomerWithBlacklist(judge: boolean): Promise<Custo
 
     return customers
   } catch (error) {
-    console.error('データベースエラー:', error)
+    console.error('database error:', error)
     return []
   } finally {
     connection.end()
@@ -179,7 +261,7 @@ export async function selectSongsByCustomerId(customerId: number): Promise<SongT
 
     return list
   } catch (error) {
-    console.error('データベースエラー:', error)
+    console.error('database error:', error)
     return []
   } finally {
     connection.end()
@@ -202,12 +284,38 @@ export async function updateCustomerWithBlacklist(id: number): Promise<void> {
 
     // 実行
     const [result] = await connection.execute(sql, [now, id])
-    console.log('更新成功:', result)
+    console.log('success to update:', result)
     return
   } catch (error) {
-    console.error('データベースエラー:', error)
+    console.error('fail to update:', error)
     return
   } finally {
     connection.end()
+  }
+}
+
+// 全曲取得
+export async function selectAllSongs(): Promise<SongType[]> {
+  const connection = await mysql.createConnection(dbConfig)
+
+  try {
+    const [rows] = await connection.execute(`
+      SELECT
+        song_id AS id,
+        song_name AS name,
+        customer_id,
+        song_memo AS memo
+      FROM
+        song
+      ORDER BY
+        song_id
+    `)
+
+    return rows as SongType[]
+  } catch (error) {
+    console.error('selectAllSongsエラー:', error)
+    return []
+  } finally {
+    await connection.end()
   }
 }

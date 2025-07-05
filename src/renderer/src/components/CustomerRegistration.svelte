@@ -1,10 +1,16 @@
 <script lang="ts">
+  import { onMount } from 'svelte'
   import type { CustomerType } from '../../../lib/type'
 
   const api = (window as any).api
 
-  // 型 & 変数的な
+  let mode: 'register' | 'update' = 'register'
+  let previousMode: 'register' | 'update' = mode
+  let customerList: CustomerType[] = []
+  let selectedCustomerId: number = -1
+
   let customerModel: CustomerType = {
+    id: -1,
     name: '',
     age: '',
     birthday: '',
@@ -26,13 +32,36 @@
     memo: ''
   }
 
-  let successMessage = 'registering'
+  let successMessage = ''
+  let now = new Date()
 
-  const now = new Date()
+  onMount(async () => {
+    customerList = await api.selectCustomerWithBlacklist(false)
+  })
 
-  // validation
-  function checkName(): void {
-    successMessage = 'registering'
+  $: if (mode !== previousMode) {
+    previousMode = mode
+    cleanForm()
+  }
+
+  function selectCustomer() {
+    const selected = customerList.find((c) => c.id === selectedCustomerId)
+    if (selected) {
+      customerModel = {
+        ...selected,
+        isGiven: selected.isGiven === true,
+        isBlack: selected.isBlack === true
+      }
+
+      customerModel.isGiven = selected.isGiven === true
+      customerModel.isBlack = selected.isBlack === true
+
+      successMessage = ''
+      cleanErrorlist()
+    }
+  }
+
+  function checkName() {
     if (!customerModel.name) {
       errorlist.name = '・名前は必須です'
     } else if (customerModel.name.length > 30) {
@@ -42,383 +71,214 @@
     }
   }
 
-  function checkAge(): void {
-    successMessage = 'registering'
-    if (customerModel.age) {
-      if (customerModel.age.length > 5) {
-        errorlist.age = '・年齢は5字以内で入力してください'
-        return
-      }
-
-      if (!/^\d+$/.test(customerModel.age)) {
-        errorlist.age = ''
-        errorlist.birthday = ''
-        return
-      }
-
-      if (customerModel.birthday) {
-        const inputBirthDay = new Date(customerModel.birthday)
-        if (inputBirthDay > now) {
-          errorlist.birthday = '・未来の日付は無効です'
-        } else {
-          const inputAge = parseInt(customerModel.age, 10)
-          // 入力値が数字に変換できなかった場合
-          if (isNaN(inputAge)) {
-            errorlist.age = ''
-            errorlist.birthday = ''
-            return
-          }
-
-          // Calculate age from birthday
-          // 年齢を誕生日から計算
-          const yearDiff = now.getFullYear() - inputBirthDay.getFullYear()
-          const hasHadBirthdayThisYear =
-            // 月比較
-            now.getMonth() > inputBirthDay.getMonth() ||
-            // 月が一致した場合、に日にちを比較
-            (now.getMonth() === inputBirthDay.getMonth() &&
-              now.getDate() >= inputBirthDay.getDate())
-
-          const calculatedAge = hasHadBirthdayThisYear ? yearDiff : yearDiff - 1
-
-          // Check if the calculated age matches the input age
-          if (calculatedAge !== inputAge) {
-            errorlist.birthday = `・年齢と誕生日が一致しません (誕生日から計算した年齢：${calculatedAge}）`
-          } else {
-            errorlist.birthday = ''
-          }
-        }
-      } else {
-        errorlist.age = ''
-        return
-      }
+  function checkAge() {
+    if (customerModel.age.length > 5) {
+      errorlist.age = '・年齢は5字以内で入力してください'
+    } else if (customerModel.age && !/^\d+$/.test(customerModel.age)) {
+      errorlist.age = '・数字のみ入力してください'
+    } else {
+      errorlist.age = ''
     }
   }
 
-  function checkBirthday(): void {
-    successMessage = 'registering'
+  function checkBirthday() {
     if (customerModel.birthday) {
-      const inputBirthDay = new Date(customerModel.birthday)
-      if (inputBirthDay > now) {
+      const birthDate = new Date(customerModel.birthday)
+      if (birthDate > now) {
         errorlist.birthday = '・未来の日付は無効です'
-      } else if (inputBirthDay < now && customerModel.age) {
-        if (!/^\d+$/.test(customerModel.age)) {
-          errorlist.age = ''
-          return
-        }
-        const inputAge = parseInt(customerModel.age, 10)
-        // 入力値が数字に変換できなかった場合
-        if (isNaN(inputAge)) {
-          errorlist.age = ''
-          return
-        }
-
-        // Calculate age from birthday
-        // 年齢を誕生日から計算
-        const yearDiff = now.getFullYear() - inputBirthDay.getFullYear()
-        const hasHadBirthdayThisYear =
-          // 月比較
-          now.getMonth() > inputBirthDay.getMonth() ||
-          // 月が一致した場合、に日にちを比較
-          (now.getMonth() === inputBirthDay.getMonth() && now.getDate() >= inputBirthDay.getDate())
-
-        const calculatedAge = hasHadBirthdayThisYear ? yearDiff : yearDiff - 1
-
-        // Check if the calculated age matches the input age
-        if (calculatedAge !== inputAge) {
-          errorlist.birthday = `・年齢と誕生日が一致しません (誕生日から計算した年齢：${calculatedAge}）`
-        } else {
-          errorlist.birthday = ''
-        }
       } else {
         errorlist.birthday = ''
       }
-    }
-  }
-
-  function checkPlace(): void {
-    successMessage = 'registering'
-    if (customerModel.place.length > 50) {
-      errorlist.place = '・活動場所は50字以内で入力してください'
     } else {
-      errorlist.place = ''
+      errorlist.birthday = ''
     }
   }
 
-  function checkHobby(): void {
-    successMessage = 'registering'
-    if (customerModel.hobby.length > 100) {
-      errorlist.hobby = '・趣味は100字以内で入力してください'
-    } else {
-      errorlist.hobby = ''
-    }
-  }
-
-  function checkContact(): void {
-    successMessage = 'registering'
+  function checkContact() {
     if (!customerModel.contact) {
       errorlist.contact = '・連絡方法は必須です'
-    } else if (customerModel.contact.length > 50) {
-      errorlist.contact = '・連絡方法は50字以内で入力してください'
     } else {
       errorlist.contact = ''
     }
   }
 
-  function checkMemo(): void {
-    successMessage = 'registering'
-    if (customerModel.memo.length > 500) {
-      errorlist.memo = '・メモは500字以内で入力してください'
-    } else {
-      errorlist.memo = ''
-    }
+  function cleanErrorlist() {
+    for (let key in errorlist) errorlist[key] = ''
   }
 
-  // 関数集
-  function handleSubmit(): void {
-    successMessage = 'registering'
+  function cleanForm() {
+    customerModel = {
+      id: -1,
+      name: '',
+      age: '',
+      birthday: '',
+      place: '',
+      hobby: '',
+      contact: '',
+      memo: '',
+      isGiven: true,
+      isBlack: false
+    }
+    selectedCustomerId = -1
+    cleanErrorlist()
+  }
 
-    // 入力チェック
+  async function handleSubmit() {
     checkName()
     checkAge()
     checkBirthday()
-    checkPlace()
-    checkHobby()
     checkContact()
-    checkMemo()
 
-    if (
-      errorlist.name === '' &&
-      errorlist.age === '' &&
-      errorlist.birthday === '' &&
-      errorlist.place === '' &&
-      errorlist.hobby === '' &&
-      errorlist.contact === '' &&
-      errorlist.memo === ''
-    ) {
-      // 登録する処理追加
-      const result = api.registerCustomer(customerModel)
+    const hasError = Object.values(errorlist).some((v) => v !== '')
+    if (hasError) return
 
-      if (result) {
-        // 入力欄きれいに
-        cleanErrorlist()
-        cleanCustomerInput()
-        successMessage = '登録が完了しました！'
-      } else {
-        successMessage = '登録に失敗しました、'
-      }
+    const result =
+      mode === 'update'
+        ? await api.updateCustomer(customerModel)
+        : await api.registerCustomer(customerModel)
+
+    console.log('resultPromise:', result)
+
+    if (result) {
+      successMessage = mode === 'update' ? '更新が完了しました！' : '登録が完了しました！'
+      cleanForm()
+      customerList = await api.selectCustomerWithBlacklist(false) // 再取得
     } else {
-      successMessage = 'registering'
+      successMessage = '登録/更新に失敗しました。'
     }
-  }
-
-  function cleanCustomerInput(): void {
-    customerModel.name = ''
-    customerModel.age = ''
-    customerModel.birthday = ''
-    customerModel.place = ''
-    customerModel.hobby = ''
-    customerModel.contact = ''
-    customerModel.memo = ''
-    customerModel.isGiven = true
-    customerModel.isBlack = false
-  }
-
-  function cleanErrorlist(): void {
-    errorlist.name = ''
-    errorlist.age = ''
-    errorlist.birthday = ''
-    errorlist.place = ''
-    errorlist.hobby = ''
-    errorlist.contact = ''
-    errorlist.memo = ''
   }
 </script>
 
-<div>
-  <h1>顧客登録</h1>
-  {#if errorlist.name}
-    <dev class="error">{errorlist.name}</dev>
-    <br />
-  {/if}
-  {#if errorlist.age}
-    <dev class="error">{errorlist.age}</dev>
-    <br />
-  {/if}
-  {#if errorlist.birthday}
-    <dev class="error">{errorlist.birthday}</dev>
-    <br />
-  {/if}
-  {#if errorlist.place}
-    <dev class="error">{errorlist.place}</dev>
-    <br />
-  {/if}
-  {#if errorlist.hobby}
-    <dev class="error">{errorlist.hobby}</dev>
-    <br />
-  {/if}
-  {#if errorlist.contact}
-    <dev class="error">{errorlist.contact}</dev>
-    <br />
-  {/if}
-  {#if errorlist.memo}
-    <dev class="error">{errorlist.memo}</dev>
-    <br />
-  {/if}
-  <br />
-  <form on:submit|preventDefault={handleSubmit}>
-    <div class="need">赤字：必須項目</div>
-    <table>
-      <tr>
-        <td style="color: red;">名前</td>
-        <td>
-          <input
-            type="text"
-            bind:value={customerModel.name}
-            autocomplete="off"
-            style="width:300px; height:30px;"
-            on:input={() => checkName()}
-          />
-        </td>
-      </tr>
-      <tr>
-        <td>年齢</td>
-        <td>
-          <input
-            type="text"
-            bind:value={customerModel.age}
-            autocomplete="off"
-            style="width:300px; height:30px;"
-            on:input={() => checkAge()}
-          />
-        </td>
-      </tr>
-      <tr>
-        <td>誕生日</td>
-        <td>
-          <input
-            type="date"
-            bind:value={customerModel.birthday}
-            autocomplete="off"
-            style="width:300px; height:30px;"
-            on:input={() => checkBirthday()}
-          />
-        </td>
-      </tr>
-      <tr>
-        <td>活動場所</td>
-        <td>
-          <input
-            type="text"
-            bind:value={customerModel.place}
-            autocomplete="off"
-            style="width:300px; height:30px;"
-            on:input={() => checkPlace()}
-          />
-        </td>
-      </tr>
-      <tr>
-        <td>趣味</td>
-        <td>
-          <textarea
-            bind:value={customerModel.hobby}
-            rows="5"
-            cols="40"
-            on:input={() => checkHobby()}
-          ></textarea>
-        </td>
-      </tr>
-      <tr>
-        <td style="color: red;">連絡方法</td>
-        <td>
-          <input
-            type="text"
-            bind:value={customerModel.contact}
-            autocomplete="off"
-            style="width:300px; height:30px;"
-            on:input={() => checkContact()}
-          />
-        </td>
-      </tr>
-      <tr>
-        <td>メモ</td>
-        <td>
-          <textarea bind:value={customerModel.memo} rows="5" cols="40" on:input={() => checkMemo()}
-          ></textarea>
-        </td>
-      </tr>
-      <tr>
-        <td style="color: red;">楽曲提供</td>
-        <td>
-          <input
-            type="radio"
-            id="radio_isGiven_true"
-            bind:group={customerModel.isGiven}
-            value={true}
-          />
-          <label for="radio_isGiven_true">提供済</label>
-          <input
-            type="radio"
-            id="radio_isGiven_false"
-            bind:group={customerModel.isGiven}
-            value={false}
-          />
-          <label for="radio_isGiven_false">未提供</label>
-        </td>
-      </tr>
-      <tr>
-        <td style="color: red;">ブラックリスト対象</td>
-        <td>
-          <input
-            type="radio"
-            id="radio_isBlack_false"
-            bind:group={customerModel.isBlack}
-            value={false}
-          />
-          <label for="radio_isBlack_false">対象にしない</label>
-          <input
-            type="radio"
-            id="radio_isBlack_true"
-            bind:group={customerModel.isBlack}
-            value={true}
-          />
-          <label for="radio_isBlack_true">対象にする</label>
-        </td>
-      </tr>
-    </table>
-    <br />
-    <div style="display: flex; align-items: center;">
-      <button type="submit" class="register-button">登録</button>
-      {#if successMessage && successMessage !== 'registering'}
-        <div style="color: green;">{successMessage}</div>
-      {/if}
-    </div>
-  </form>
+<!-- モード選択 -->
+<div style="margin-bottom: 10px;">
+  <label><input type="radio" bind:group={mode} value="register" /> 登録</label>
+  <label><input type="radio" bind:group={mode} value="update" /> 更新</label>
 </div>
+
+<!-- 編集モード用: 顧客選択 -->
+{#if mode === 'update'}
+  <div style="margin-top: 10px;">
+    <label for="customer-select">更新する顧客を選択</label><br />
+    <select
+      id="customer-select"
+      bind:value={selectedCustomerId}
+      on:change={selectCustomer}
+      style="width: 300px;"
+    >
+      <option value={-1}>-- 顧客を選択 --</option>
+      {#each customerList as c}
+        <option value={c.id}>{c.name}</option>
+      {/each}
+    </select>
+  </div>
+{/if}
+
+<!-- フォーム本体 -->
+<form on:submit|preventDefault={handleSubmit}>
+  <div class="need">赤字：必須項目</div>
+  <table>
+    <tr>
+      <td style="color: red;">名前</td>
+      <td>
+        {#if mode === 'update'}
+          <input type="text" bind:value={customerModel.name} disabled={mode === 'update'} />
+        {:else}
+          <input type="text" bind:value={customerModel.name} on:input={checkName} />
+        {/if}
+        {#if errorlist.name}<div class="error">{errorlist.name}</div>{/if}
+      </td>
+    </tr>
+    <tr>
+      <td>年齢</td>
+      <td>
+        <input type="text" bind:value={customerModel.age} on:input={checkAge} />
+        {#if errorlist.age}<div class="error">{errorlist.age}</div>{/if}
+      </td>
+    </tr>
+    <tr>
+      <td>誕生日</td>
+      <td>
+        <input type="date" bind:value={customerModel.birthday} on:input={checkBirthday} />
+        {#if errorlist.birthday}<div class="error">{errorlist.birthday}</div>{/if}
+      </td>
+    </tr>
+    <tr>
+      <td>活動場所</td>
+      <td><input type="text" bind:value={customerModel.place} /></td>
+    </tr>
+    <tr>
+      <td>趣味</td>
+      <td><textarea bind:value={customerModel.hobby}></textarea></td>
+    </tr>
+    <tr>
+      <td style="color: red;">連絡方法</td>
+      <td>
+        <input type="text" bind:value={customerModel.contact} on:input={checkContact} />
+        {#if errorlist.contact}<div class="error">{errorlist.contact}</div>{/if}
+      </td>
+    </tr>
+    <tr>
+      <td>メモ</td>
+      <td><textarea bind:value={customerModel.memo}></textarea></td>
+    </tr>
+    <tr>
+      <td style="color: red;">楽曲提供</td>
+      <td>
+        <label>
+          <input type="radio" bind:group={customerModel.isGiven} value={true} />
+          提供済
+        </label>
+        <label>
+          <input type="radio" bind:group={customerModel.isGiven} name="isGiven" value={false} />
+          未提供
+        </label>
+      </td>
+    </tr>
+    <tr>
+      <td style="color: red;">ブラックリスト対象</td>
+      <td>
+        <label>
+          <input type="radio" bind:group={customerModel.isBlack} value={false} />
+          対象にしない
+        </label>
+        <label>
+          <input type="radio" bind:group={customerModel.isBlack} value={true} />
+          対象にする
+        </label>
+      </td>
+    </tr>
+  </table>
+
+  <div style="margin-top: 10px;">
+    <button type="submit">{mode === 'update' ? '更新' : '登録'}</button>
+    <button type="button" on:click={cleanForm} style="margin-left: 10px;">クリア</button>
+    {#if successMessage}
+      <span style="color: green; margin-left: 15px;">{successMessage}</span>
+    {/if}
+  </div>
+</form>
 
 <style>
   .error {
     color: red;
+    font-size: 0.9em;
   }
   .need {
     color: red;
   }
   table {
-    border-collapse: collapse;
     width: 100%;
+    border-collapse: collapse;
   }
   td {
     padding: 8px;
-    border: 1px solid #ccc;
+    vertical-align: top;
   }
-  .register-button {
-    margin-right: 20px;
-    cursor: pointer;
-    border-radius: 20px;
-    padding: 5px 15px;
-    font-size: 16px;
-    background-color: transparent;
-    color: white;
-    border: 1px solid white;
+  input[type='text'],
+  input[type='date'],
+  select,
+  textarea {
+    width: 300px;
+    padding: 4px;
   }
 </style>
