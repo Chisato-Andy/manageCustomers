@@ -10,8 +10,10 @@ const api = {
   updateCustomerWithBlacklist: (id: number) =>
     ipcRenderer.invoke('update-customer-with-blacklist', id),
   registerSong: (song: SongType) => ipcRenderer.invoke('register-song', song),
+  updateSong: (song: SongType) => ipcRenderer.invoke('update-song', song),
   selectSongsByCustomerId: (customerId: number) =>
-    ipcRenderer.invoke('select-songs-by-customer-id', customerId)
+    ipcRenderer.invoke('select-songs-by-customer-id', customerId),
+  selectAllSongs: () => ipcRenderer.invoke('select-all-songs')
 }
 
 // Use `contextBridge` APIs to expose Electron APIs to

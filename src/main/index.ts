@@ -8,7 +8,9 @@ import {
   selectCustomerWithBlacklist,
   updateCustomerWithBlacklist,
   registerSong,
-  selectSongsByCustomerId
+  updateSong,
+  selectSongsByCustomerId,
+  selectAllSongs
 } from '../lib/server/db'
 
 function createWindow(): void {
@@ -21,7 +23,9 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false
+      sandbox: false,
+      contextIsolation: true,
+      nodeIntegration: false
     }
   })
 
@@ -77,18 +81,23 @@ app.on('window-all-closed', () => {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 // 顧客登録
-ipcMain.handle('register-customer', (_event, customer) => {
-  registerCustomer(customer)
+ipcMain.handle('register-customer', async (_event, customer) => {
+  return await registerCustomer(customer)
 })
 
 // 顧客情報更新
-ipcMain.handle('update-customer', (_event, customer) => {
-  updateCustomer(customer)
+ipcMain.handle('update-customer', async (_event, customer) => {
+  return await updateCustomer(customer)
 })
 
-// 曲登録
-ipcMain.handle('register-song', (_event, song) => {
-  registerSong(song)
+// 曲情報登録
+ipcMain.handle('register-song', async (_event, song) => {
+  return await registerSong(song)
+})
+
+// 曲情報更新
+ipcMain.handle('update-song', async (_event, song) => {
+  return await updateSong(song)
 })
 
 // 顧客情報取得
@@ -99,10 +108,15 @@ ipcMain.handle('select-customer', async (_event, judge) => {
 
 // ブラックリスト情報更新
 ipcMain.handle('update-customer-with-blacklist', async (_event, id) => {
-  await updateCustomerWithBlacklist(id)
+  return await updateCustomerWithBlacklist(id)
 })
 
 // 顧客の客リスト取得
 ipcMain.handle('select-songs-by-customer-id', async (_event, id) => {
-  await selectSongsByCustomerId(id)
+  return await selectSongsByCustomerId(id)
+})
+
+// 全曲リスト取得
+ipcMain.handle('select-all-songs', async () => {
+  return await selectAllSongs()
 })

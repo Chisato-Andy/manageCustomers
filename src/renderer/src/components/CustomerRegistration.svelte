@@ -5,6 +5,7 @@
   const api = (window as any).api
 
   let mode: 'register' | 'update' = 'register'
+  let previousMode: 'register' | 'update' = mode
   let customerList: CustomerType[] = []
   let selectedCustomerId: number = -1
 
@@ -37,6 +38,11 @@
   onMount(async () => {
     customerList = await api.selectCustomerWithBlacklist(false)
   })
+
+  $: if (mode !== previousMode) {
+    previousMode = mode
+    cleanForm()
+  }
 
   function selectCustomer() {
     const selected = customerList.find((c) => c.id === selectedCustomerId)
@@ -127,7 +133,11 @@
     if (hasError) return
 
     const result =
-      mode === 'update' ? api.updateCustomer(customerModel) : api.registerCustomer(customerModel)
+      mode === 'update'
+        ? await api.updateCustomer(customerModel)
+        : await api.registerCustomer(customerModel)
+
+    console.log('resultPromise:', result)
 
     if (result) {
       successMessage = mode === 'update' ? '更新が完了しました！' : '登録が完了しました！'
@@ -140,7 +150,7 @@
 </script>
 
 <!-- モード選択 -->
-<div>
+<div style="margin-bottom: 10px;">
   <label><input type="radio" bind:group={mode} value="register" /> 登録</label>
   <label><input type="radio" bind:group={mode} value="update" /> 更新</label>
 </div>
