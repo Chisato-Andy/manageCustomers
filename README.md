@@ -43,4 +43,4 @@
 # 更新情報
 ## 2025/7/5
 * 下記をチェック
-** https://github.com/Chisato-Andy/manageCustomers/releases/tag/1.0.1
+  * https://github.com/Chisato-Andy/manageCustomers/releases/tag/1.0.1
